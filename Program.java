@@ -30,6 +30,10 @@ public class Program {
             createOutputFile(outputFileName);
 
     
+            out.println(".data");
+            out.println("fmt: .asciz \"%d\"");
+            out.println("newline: .ascii \"\\n\"");
+            out.println( ".text");
             out.println(".global _main");
             out.println("_main:");
 
@@ -40,49 +44,55 @@ public class Program {
                 String exp = line.trim();
 
                 if(isNumber(exp)){
-                    out.println("  push $" + exp);
+                    out.println("  pushq $" + exp);
                 }
                 else if(exp.equals(".s")) {
-                    out.printf("call print\n  ");
+                    out.println("movq (%rsp), %rsi"); 
+                    out.println("movq $0, %rax");
+                    out.println("pushq %rax");
+                    out.println("lea fmt(%rip), %rdi"); 
+                    out.println("call printf");
+                    out.println("mov $0, %edi"); 
+                    out.println("call fflush"); 
                 }
                 else if(exp.equals("+")){
-                    out.println("  pop %rbx");
-                    out.println("  pop %rax");
-                    out.println("  add %rax, %rbx");
-                    out.println("  push %rbx");
+                    out.println("  popq %rbx");
+                    out.println("  popq %rax");
+                    out.println("  addq %rax, %rbx");
+                    out.println("  pushq %rbx");
 
                 }else if(exp.equals("-")){
-                    out.println("  pop %rbx");
-                    out.println("  pop %rax");
-                    out.println("  sub %rax, %rbx");
-                    out.println("  push %rax");
+                    out.println("  popq %rbx");
+                    out.println("  popq %rax");
+                    out.println("  subq %rax, %rbx");
+                    out.println("  pushq %rax");
                 }else if(exp.equals("*")){
-                    out.println("  pop %rbx");
-                    out.println("  pop %rax");
-                    out.println("  imul %rax, %rbx");
-                    out.println("  push %rax");
+                    out.println("  popq %rbx");
+                    out.println("  popq %rax");
+                    out.println("  imulq %rax, %rbx");
+                    out.println("  pushq %rax");
                 }else if(exp.equals("swap")){
-                    out.println("  pop %rbx");
-                    out.println("  pop %rax");
-                    out.println("  push %rax");
-                    out.println("  push %rbx");
+                    out.println("  popq %rbx");
+                    out.println("  popq %rax");
+                    out.println("  pushq %rax");
+                    out.println("  pushq %rbx");
                 }else if(exp.equals("nip")){
-                    out.println("  pop %rbx");
-                    out.println("  pop %rax");
-                    out.println("  push %rbx");
+                    out.println("  popq %rbx");
+                    out.println("  popq %rax");
+                    out.println("  pushq %rbx");
                 }else if(exp.equals("dup")){
-                    out.println("  pop %rbx");
-                    out.println("  push %rbx");
-                    out.println("  push %rbx");
+                    out.println("  popq %rbx");
+                    out.println("  pushq %rbx");
+                    out.println("  pushq %rbx");
                 }
                 //more operations
              
                
             }
 
-            out.println(" mov $60, %rax ");
-            out.println("  xor %rdi, %rdi");
-            out.println("  syscall ");
+            out.println("movq %rax, %rdi");
+            out.println("movq $60, %rax");
+            out.println( "syscall");
         
             reader.close();
             out.close();
