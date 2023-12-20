@@ -34,8 +34,8 @@ public class Program {
             out.println("fmt: .asciz \"%d\"");
             out.println("newline: .ascii \"\\n\"");
             out.println( ".text");
-            out.println(".global _main");
-            out.println("_main:");
+            out.println(".global _start");
+            out.println("_start:");
 
            
             String line;
@@ -47,13 +47,15 @@ public class Program {
                     out.println("  pushq $" + exp);
                 }
                 else if(exp.equals(".s")) {
-                    out.println("movq (%rsp), %rsi"); 
-                    out.println("movq $0, %rax");
-                    out.println("pushq %rax");
-                    out.println("lea fmt(%rip), %rdi"); 
-                    out.println("call printf");
-                    out.println("mov $0, %edi"); 
-                    out.println("call fflush"); 
+                    //out.println("movq (%rsp), %rsi"); 
+                    //out.println("movq $0, %rax");
+                    //out.println("pushq %rax");
+                    //out.println("lea fmt(%rip), %rdi"); 
+                    //out.println("call printf");
+                    //out.println("mov $0, %edi"); 
+                    //out.println("call fflush"); 
+		    out.println("popq %rsi");
+		    out.println("call print");
                 }
                 else if(exp.equals("+")){
                     out.println("  popq %rbx");
@@ -74,8 +76,8 @@ public class Program {
                 }else if(exp.equals("swap")){
                     out.println("  popq %rbx");
                     out.println("  popq %rax");
-                    out.println("  pushq %rax");
                     out.println("  pushq %rbx");
+                    out.println("  pushq %rax");
                 }else if(exp.equals("nip")){
                     out.println("  popq %rbx");
                     out.println("  popq %rax");
@@ -99,11 +101,12 @@ public class Program {
 
             System.out.println("File copied successfully!");
 
+            assembleCode("as -o print.o print.s");
             assembleCode("as -o " + objectFileName + " " + outputFileName);
 
-            linkObjectFile("ld -o " + executableFileName + " " + objectFileName);
+            linkObjectFile("ld -o " + executableFileName + " print.o -lc -dynamic-linker /lib64/ld-linux-x86-64.so.2  " + objectFileName);
 
-            executeShellCommand("./" + executableFileName);
+            //executeShellCommand("./" + executableFileName);
 
 
         } catch (IOException | InterruptedException e) {
@@ -125,10 +128,12 @@ public class Program {
 
 
     private static void assembleCode(String command) throws IOException, InterruptedException {
+	System.out.println(command);
         executeShellCommand(command);
     }
 
     private static void linkObjectFile(String command) throws IOException, InterruptedException {
+	System.out.println(command);
         executeShellCommand(command);
     }
 
